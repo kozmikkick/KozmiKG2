@@ -1,0 +1,5 @@
+cd ..
+export CROSS_COMPILE=arm-eabi- ARCH=arm SUBARM=arm
+make -j8 kozmik_defconfig
+make -j8
+cd Build

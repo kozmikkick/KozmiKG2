@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# compile the kernel
+cd ..
+KernelBldg=/home/kozmikkick/kernel/kozmikg2
+export CROSS_COMPILE=arm-eabi- ARCH=arm SUBARM=arm
+make -j8 kozmik_defconfig
+make -j8
+cd kcontrol
+make
+now=$(date +"%Y%m%d_%H%M")
+cd ..
+
+# copy modules
+find arch -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find block -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find crypto -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find drivers -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find fs -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find ipc -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find net -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+find kcontrol -type f -name '*.ko' -exec cp -f {} Build/KozmiKKernel/system/lib/modules \;
+
+cd Build
+mkdir zImage.new
+cd ..
+
+# copy zImage
+cp -f arch/arm/boot/zImage Build/zImage.new/zImage
+cp -f arch/arm/boot/zImage Build/KozmiKKernel/zImage
+
+cd Build
+# compile boot.img
+mkdir bootimg.out
+mkdir -p ./pa-ramdisk/system/lib/modules
+./tools/mkbootfs pa-ramdisk | gzip > ramdisk.gz
+./tools/dtbTool -s 2048 -o /home/kozmikkick/kernel/kozmikg2/Build/zImage.new/dt.img /home/kozmikkick/kernel/kozmikg2/arch/arm/boot/
+base=0x00000000
+offset=0x05000000
+tags_addr=0x04800000
+cmd_line="console=ttyHSL0,115200,n8 androidboot.hardware=g2 user_debug=31 msm_rtb.filter=0x0"
+./tools/mkbootimg --kernel ./zImage.new/zImage --ramdisk ramdisk.gz --cmdline "$cmd_line" --base $base --offset $offset --tags-addr $tags_addr --pagesize 2048 --dt ./zImage.new/dt.img -o ./bootimg.out/bootpa.img
+
+cp ./bootimg.out/bootpa.img ./KozmiKKernel/boot.img
+####Building boot.img Finish####
+
+# cleaning up
+rm -fR ./pa-ramdisk/system
+rm -fR ./ramdisk.gz
+rm -fR ./bootimg.out
+
+# compile install zip
+cd KozmiKKernel
+zip -r ./KozmiKKernel-M7-$(echo $now).zip ./META-INF ./system ./tmp ./boot.img ./zImage
+
+# cleaning up
+cd ..
+rm -fR ./KozmiKKernel/zImage
+rm -fR ./KozmiKKernel/boot.img
+rm -fR ./KozmiKKernel/system/lib/modules
+mkdir ./KozmiKKernel/system/lib/modules
+rm -fR ./zImage.new
