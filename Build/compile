@@ -4,7 +4,7 @@
 cd ..
 KernelBldg=/home/kozmikkick/kernel/kozmikg2
 export CROSS_COMPILE=arm-eabi- ARCH=arm SUBARM=arm
-make -j8 kozmik_defconfig
+make -j8 g2-att-kozmik_defconfig
 make -j8
 cd kcontrol
 make
@@ -27,7 +27,7 @@ cd ..
 
 # copy zImage
 cp -f arch/arm/boot/zImage Build/zImage.new/zImage
-cp -f arch/arm/boot/zImage Build/KozmiKKernel/zImage
+cp -f arch/arm/boot/zImage Build/KozmiKKernel/kernel/zImage
 
 cd Build
 # compile boot.img
