@@ -41,7 +41,7 @@ ui_print("");
 ui_print("");
 ui_print("KozmiKKernel - LG G2");
 ui_print("Developed By: KozmiKKicK");
-ui_print("Credits: Faux123, Showp1984, TripNRaVeR, Tbalden, Ayysir");
+ui_print("Credits: Faux123, Showp1984, TripNRaVeR, Tbalden, Ayysir, djrbliss");
 ui_print("");
 ui_print("Contact-Twitter: @kozmikkick");
 ui_print("");
@@ -51,13 +51,27 @@ ui_print("Extracting files..");
 mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
 delete_recursive("/system/lib/modules");
 package_extract_dir("system", "/system");
-package_extract_dir("tmp", "/tmp");
-package_extract_file("boot.img", "/tmp/loki/boot.img");
+package_extract_dir("kernel", "/tmp");
 set_perm_recursive(0, 0, 0755, 0644, "/system/lib/modules");
 set_perm(0, 0, 0755, "/tmp/loki.sh");
+set_perm(0, 0, 0777, "/tmp/loki/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/loki/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/loki/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/loki/busybox");
+
+ui_print("Pull the boot.img from your phone...");
+run_program("/sbin/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/loki/boot.img");
+
+ui_print("Extract boot.img...");
+run_program("/tmp/loki/unpackbootimg", "-i", "/tmp/loki/boot.img", "-o", "/tmp/loki/");
+
+ui_print("Installing kernel...");
+run_program("/tmp/loki/mkbootimg.sh");
+
 set_perm_recursive(0, 0, 0755, 0755, "/tmp/loki");
 assert(run_program("/tmp/loki.sh") == 0);
 delete("/tmp/loki.sh");
+
 unmount("/system");
 show_progress(0.100000, 0);
 ui_print("");
