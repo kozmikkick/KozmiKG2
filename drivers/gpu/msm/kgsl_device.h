@@ -438,7 +438,7 @@ void kgsl_context_destroy(struct kref *kref);
 int kgsl_context_init(struct kgsl_device_private *, struct kgsl_context
 		*context);
 
- * Asynchronous code that holds a pointer to a context
+ /* Asynchronous code that holds a pointer to a context
  * must hold a reference count on it. The kgsl device
  * mutex must be held while the context reference count
  * is changed.

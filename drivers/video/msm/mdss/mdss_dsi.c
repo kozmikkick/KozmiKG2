@@ -844,9 +844,6 @@ int mdss_dsi_on(struct mdss_panel_data *pdata)
 	mdss_dsi_panel_reset(pdata, 1);
 	msleep(20);
 #else
-                                    
-                                   
-  */
 	#if defined (CONFIG_MACH_MSM8974_VU3_KR)
 		msleep(40);
 	#else
